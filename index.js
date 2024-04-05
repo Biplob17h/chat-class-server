@@ -1,41 +1,41 @@
 import express from "express";
 import cors from "cors";
-import morgan from "morgan";
-import dotenv from "dotenv";
 import colors from "colors";
-import connectDB from "./config/db.js";
-import userRouter from "./routes/userRoute.js";
-import applicationRouter from "./routes/applicationRoute.js";
-import adminRouter from "./routes/adminRoutes.js";
-import coachRouter from "./routes/coachRoutes.js";
-import bookingRouter from "./routes/bookingRoute.js";
+import dotenv from "dotenv";
+import http from "http";
+import connectDb from "./db/db.js";
+import userRouter from "./routes/userRoutes.js";
+import classRouter from "./routes/classRoutes.js";
+import AssignmentSubmitRouter from "./routes/AssignmentSubmitRoutes.js";
 
-// APP
-const app = express();
-
-// CONFIG
+// config
 dotenv.config();
 
-//MIDDLEWIRES
-app.use(cors());
-app.use(express.json());
-app.use(morgan("dev"));
+// app
+const app = express();
 
-// ROUTES
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/trainer", applicationRouter);
-app.use("/api/v1/admin", adminRouter);
-app.use("/api/v1/coach", coachRouter);
-app.use("/api/v1/booking", bookingRouter);
+// create server with http
+const server = new http.createServer(app);
 
-// HOMEPAGE
+// middlewares
+app.use(cors())
+app.use(express.json())
+
+// routes
+app.use('/api/v1/user', userRouter)
+app.use('/api/v1/class', classRouter)
+app.use('/api/v1/submit', AssignmentSubmitRouter)
+
+// homepage
 app.get("/", (req, res) => {
-  res.send(`<h1>Wellcome to Gym server Homepage</h1>`);
+  res.send("chat application server is running");
 });
 
-// LISTEN
-const port = process.env.PORT || 8080;
-connectDB();
-app.listen(port, () => {
+// port
+const port = process.env.PORT || 5000;
+
+// listen server
+server.listen(port, () => {
+  connectDb();
   console.log(`server is running on port ${port}`.cyan.bold);
 });
