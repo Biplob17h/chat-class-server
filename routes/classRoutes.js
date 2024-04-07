@@ -5,6 +5,7 @@ import {
   createAHomeWork,
   findAllClass,
   findClassById,
+  getStudentClass,
   promoteAStudentToCoTeacher,
 } from "../controllers/classControllers.js";
 
@@ -14,6 +15,7 @@ classRouter.post("/create", createAClass);
 
 classRouter.get("/singleClass/:id", findClassById);
 classRouter.get("/all", findAllClass);
+classRouter.get("/studentClass", getStudentClass);
 
 classRouter.put("/addStudent", addStudentToClass);
 

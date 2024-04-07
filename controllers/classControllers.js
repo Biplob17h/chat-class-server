@@ -88,10 +88,36 @@ const addStudentToClass = async (req, res) => {
     const { name, email, photo, classId, password } = req.body;
 
     // check credentials
-    if (!name || !email || !photo || !classId || !password) {
+    if (!name || !email || !classId || !password) {
       return res.json({
         status: "fail",
         message: "please provide your credentials",
+      });
+    }
+
+    // is student already in a class
+
+    const classes = await Class.find({});
+
+    const studentEmail = email;
+    const studentClasses = [];
+
+    classes.forEach((classItem) => {
+      // Check if the student's email exists in the students array of this class
+      const studentIndex = classItem.students.findIndex(
+        (student) => student.email === studentEmail
+      );
+      if (studentIndex !== -1) {
+        // If found, add this class to the studentClasses array
+        studentClasses.push(classItem);
+      }
+    });
+
+    const length = studentClasses.length;
+    if (length != 0) {
+      return res.json({
+        status: "fail",
+        message: "Student already in a class",
       });
     }
 
@@ -206,6 +232,60 @@ const createAHomeWork = async (req, res) => {
   }
 };
 
+const getStudentClass = async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    const classes = await Class.find({});
+
+    const studentEmail = email;
+    const studentClasses = [];
+
+    classes.forEach((classItem) => {
+      // Check if the student's email exists in the students array of this class
+      const studentIndex = classItem.students.findIndex(
+        (student) => student.email === studentEmail
+      );
+      if (studentIndex !== -1) {
+        // If found, add this class to the studentClasses array
+        studentClasses.push(classItem);
+      }
+    });
+
+    const length = studentClasses.length;
+
+    res.json({
+      status: "success",
+      studentClasses,
+    });
+  } catch (error) {
+    return res.json({
+      status: "fail",
+      message: error.message,
+      error,
+    });
+  }
+};
+
+const deleteAClass = async (req, res) => {
+  try {
+    const _id = req.query._id;
+
+    const result = await Class.deleteOne({ _id });
+
+    res.status(200).json({
+      status: "success",
+      result,
+    });
+  } catch (error) {
+    return res.json({
+      status: "fail",
+      message: error.message,
+      error,
+    });
+  }
+};
+
 export {
   createAClass,
   findAllClass,
@@ -213,4 +293,5 @@ export {
   addStudentToClass,
   promoteAStudentToCoTeacher,
   createAHomeWork,
+  getStudentClass,
 };
