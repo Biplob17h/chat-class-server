@@ -269,10 +269,13 @@ const getStudentClass = async (req, res) => {
 
 const deleteAClass = async (req, res) => {
   try {
-    const _id = req.query._id;
+    const classId = req.query._id;
 
-    const result = await Class.deleteOne({ _id });
+    const query = {
+      _id: classId,
+    };
 
+    const result = await Class.deleteOne(query);
     res.status(200).json({
       status: "success",
       result,
@@ -286,6 +289,57 @@ const deleteAClass = async (req, res) => {
   }
 };
 
+const leaveAClass = async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    const classes = await Class.find({});
+
+    // Given studentClasses array
+    const studentEmail = email;
+    let studentClasses = [];
+
+    classes.forEach((classItem) => {
+      // Check if the student's email exists in the students array of this class
+      const studentIndex = classItem.students.findIndex(
+        (student) => student.email === studentEmail
+      );
+      if (studentIndex !== -1) {
+        // If found, add this class to the studentClasses array
+        studentClasses.push(classItem);
+      }
+    });
+
+    // Function to remove student with specific email
+    function removeStudentByEmail(email) {
+      studentClasses.forEach((classObj) => {
+        classObj.students = classObj.students.filter(
+          (student) => student.email !== email
+        );
+      });
+    }
+
+    // Call the function to remove the student with email "mdbiplub13@gmail.com"
+    removeStudentByEmail(email);
+
+    // Log the updated studentClasses array
+    const _id = await studentClasses[0]._id;
+
+    const studentData = studentClasses[0];
+
+    const query = {
+      _id: _id,
+    };
+
+    const updateOneData = await Class.updateOne(query, { $set: studentData });
+
+    res.json({
+      status: "success",
+      updateOneData,
+    });
+  } catch (error) {}
+};
+
 export {
   createAClass,
   findAllClass,
@@ -294,4 +348,6 @@ export {
   promoteAStudentToCoTeacher,
   createAHomeWork,
   getStudentClass,
+  deleteAClass,
+  leaveAClass,
 };
